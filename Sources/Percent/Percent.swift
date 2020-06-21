@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Holds a percentage as a value
 public struct Percent: CustomStringConvertible {
     private var percentValue: PercentValue
     public var percent: PercentValue {
@@ -20,26 +21,26 @@ public struct Percent: CustomStringConvertible {
     public var min: PercentValue?
     public var max: PercentValue?
     
-    init(_ value: PercentValue, min: PercentValue? = nil, max: PercentValue? = nil) {
+    public init(_ value: PercentValue, min: PercentValue? = nil, max: PercentValue? = nil) {
         self.min = min
         self.max = max
         self.percentValue = limit(value, min: min, max: max)
     }
     
-    init(decimal: PercentValue, min: PercentValue? = nil, max: PercentValue? = nil) {
+    public init(decimal: PercentValue, min: PercentValue? = nil, max: PercentValue? = nil) {
         self.init(decimal.percentValue, min: min, max: max)
     }
     
-    init?(string: String, min: PercentValue? = nil, max: PercentValue? = nil) {
+    public init?(string: String, min: PercentValue? = nil, max: PercentValue? = nil) {
         guard let value = Self.getValueOfStringPercent(string) else { return nil }
         self.init(value, min: min, max: max)
     }
     
-    init(numerator: Double, denominator: Double, min: PercentValue? = nil, max: PercentValue? = nil) {
+    public init(numerator: Double, denominator: Double, min: PercentValue? = nil, max: PercentValue? = nil) {
         self.init(decimal: (numerator / denominator), min: min, max: max)
     }
     
-    init(numerator: Int, denominator: Int, min: PercentValue? = nil, max: PercentValue? = nil) {
+    public init(numerator: Int, denominator: Int, min: PercentValue? = nil, max: PercentValue? = nil) {
         self.init(numerator: Double(numerator), denominator: Double(denominator), min: min, max: max)
     }
     
@@ -47,13 +48,13 @@ public struct Percent: CustomStringConvertible {
      Applies the percentage to a number to get the percentage of that number
      - Parameter number: The number to get  a percentage of
      */
-    func of(number: Double) -> Double { number * decimal }
+    public func of(number: Double) -> Double { number * decimal }
     
     /**
      Applies the percentage to a number to get the percentage of that number
      - Parameter number: The number to get  a percentage of
      */
-    func of(number: Int) -> Double { Double(number) * decimal }
+    public func of(number: Int) -> Double { Double(number) * decimal }
     
     public var description: String { Self.toStringPercent(value: percent) }
     
