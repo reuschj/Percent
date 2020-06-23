@@ -12,6 +12,9 @@ final class PercentTests: XCTestCase {
         XCTAssertEqual(fiftyPercent * fiftyPercent, Percent(25))
         XCTAssertEqual(10 * Percent(50), 5)
         XCTAssertEqual(fiftyPercent / Percent(25), Percent(200))
+        XCTAssertEqual(10 * fiftyPercent, 5)
+        XCTAssertEqual(fiftyPercent.of(number: 10), 5)
+        XCTAssertTrue(fiftyPercent >= 0.5)
     }
 
     static var allTests = [
