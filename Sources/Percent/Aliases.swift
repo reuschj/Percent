@@ -7,25 +7,24 @@
 
 /// A double that expresses a percentage as an amount over 100.
 /// For example, 100.0 = 100%, 50.0 = 50%, 1 = 1%, etc.
-public typealias PercentValue = Double
+public typealias PercentDouble = Double
 
-extension PercentValue: PercentInput {
-    public typealias DecimalEquivalent = PercentDecimal
+extension PercentDouble: PercentFloatingPoint {
     
-    public static let empty: PercentValue = 0
-    public static let full: PercentValue = 100
-    public var clean: String {
+    public typealias DecimalEquivalent = DecimalDouble
+    
+    /// Cleans any unnecessary trailing zeros for output formatting
+    /// For example, 50.0 -> 50, but 50.3 -> 50.3
+    public var removeTrailingZeros: String {
         return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
     }
 }
 
 /// A double that expresses a percentage as a decimal.
 /// For example, 1.0 = 100%, 0.5 = 50%, 0.01 = 1%, etc.
-public typealias PercentDecimal = Double
+public typealias DecimalDouble = Double
 
-extension PercentDecimal: PercentDecimalInput {
-    public typealias PercentEquivalent = PercentValue
+extension DecimalDouble: DecimalFloatingPoint {
     
-    public static let emptyDecimal: PercentDecimal = 0
-    public static let fullDecimal: PercentDecimal = 1
+    public typealias PercentEquivalent = PercentDouble
 }
