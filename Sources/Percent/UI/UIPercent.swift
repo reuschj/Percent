@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// Holds a scale for a UI element to set size dynamically based on the size of it's container
-struct UIPercent: PercentProtocol {
+public struct UIPercent: PercentProtocol {
     
     public typealias BaseType = CGFloat
     public typealias ExpressedAsPercent = PercentCGFloat
@@ -177,7 +177,7 @@ struct UIPercent: PercentProtocol {
      - Parameter minimum: The minimum allowed value (omit or pass `nil` for no minimum)
      - Parameter maximum: The maximum allowed value (omit or pass `nil` for no maximum)
      */
-    init(
+    public init(
         fontSize: PercentCGFloat, of container: ScaleContainer = .container(.height),
         minimum: PercentCGFloat? = nil,
         maximum: PercentCGFloat? = nil
@@ -189,17 +189,49 @@ struct UIPercent: PercentProtocol {
     
     /**
      Gets the fixed size from the scale within a given container
-     - Parameter containerSize: The container size (just the relevant dimension, height or width)
+     - Parameter measurement: The container size (just the relevant dimension, height or width)
      - Parameter range: A closed range of allowable sizes to constrain to (optional)
      */
-    func getSize(within containerSize: CGFloat, limitedTo range: ClosedRange<CGFloat>? = nil) -> CGFloat {
-        let scaled = containerSize * decimal
+    public func resolve(within measurement: CGFloat, limitedTo range: ClosedRange<CGFloat>? = nil) -> CGFloat {
+        let scaled = measurement * decimal
         guard let range = range else { return scaled }
         if range.contains(scaled) { return scaled }
         if scaled > range.upperBound { return range.upperBound }
         if scaled < range.upperBound { return range.lowerBound }
         return scaled
     }
+    
+    /**
+     Gets a fixed size from passed geometry, based on selected dimension.
+     _Note that this will not check the source of the geometry and assumes the geometry is for the container you choose to scale to._
+     _Note that this may not be reliable if measuring to `Dimension.other` case,_ in which case it will default to scaling to the minimum of the height and width of the passed container.
+     - Parameter size: Passed container you wish to scale to.
+     - Parameter range: A closed range of allowable sizes to constrain to (optional)
+     - Returns: A fixed size scaled from the container size
+     */
+    public func resolve(within size: CGSize, limitedTo range: ClosedRange<CGFloat>? = nil) -> CGFloat {
+        switch container.dimension {
+        case .height:
+            return resolve(within: size.height, limitedTo: range)
+        case .width:
+            return resolve(within: size.width, limitedTo: range)
+        case .diameter:
+            let diameter = min(size.height, size.width)
+            return resolve(within: diameter, limitedTo: range)
+        case .radius:
+            let radius = min(size.height, size.width) / 2
+            return resolve(within: radius, limitedTo: range)
+        case .other(description: _):
+            let unknown = min(size.height, size.width)
+            return resolve(within: unknown, limitedTo: range)
+        }
+    }
+    
+    /**
+     Applies the percentage to a number to get the percentage of that number
+     - Parameter measurement: The number to get  a percentage of
+     */
+    public func of(measurement: CGFloat) -> CGFloat { measurement * decimal }
     
     /// String representation
     public var description: String {
@@ -221,7 +253,7 @@ struct UIPercent: PercentProtocol {
     
     /// Enum of containers within the app to scale to.
     /// Choose `container` to request scaling to a container
-    enum ScaleContainer: Equatable, Comparable, CustomStringConvertible {
+    public enum ScaleContainer: Equatable, Comparable, CustomStringConvertible {
         case screen(Dimension = .width)
         case container(Dimension = .width, of: String? = nil)
         
@@ -236,7 +268,7 @@ struct UIPercent: PercentProtocol {
         }
          
         /// Gets the store dimension
-        var dimension: Dimension {
+        public var dimension: Dimension {
             switch self {
             case .screen(let dim):
                 return dim
@@ -246,7 +278,7 @@ struct UIPercent: PercentProtocol {
         }
         
         /// String representation
-        var description: String {
+        public var description: String {
             switch self {
             case .screen(let dim):
                 return "screen \(dim)"
@@ -269,7 +301,7 @@ struct UIPercent: PercentProtocol {
         }
         
         /// The dimension of the container being scaled to.
-        enum Dimension: Equatable, Comparable, CustomStringConvertible {
+        public enum Dimension: Equatable, Comparable, CustomStringConvertible {
             case width
             case height
             case diameter
@@ -277,7 +309,7 @@ struct UIPercent: PercentProtocol {
             case other(description: String)
             
             /// String representation
-            var description: String {
+            public var description: String {
                 switch self {
                 case .width:
                     return "width"

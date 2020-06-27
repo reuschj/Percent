@@ -40,10 +40,30 @@ final class PercentTests: XCTestCase {
         XCTAssertEqual(fiftyPercent.percent, 50)
         XCTAssertEqual(fiftyPercent.decimal, 0.5)
     }
+    
+    func testThatUIArithmeticWorks() {
+        XCTAssertEqual(UIPercent(50, of: .screen(.width)) + UIPercent(2, of: .screen(.width)), UIPercent(52, of: .screen(.width)))
+        XCTAssertEqual(UIPercent(50, of: .screen(.width)) - UIPercent(7, of: .screen(.width)), UIPercent(43, of: .screen(.width)))
+        XCTAssertEqual(UIPercent(50, of: .screen(.width)) * UIPercent(50, of: .screen(.width)), UIPercent(25, of: .screen(.width)))
+        XCTAssertEqual(10 * UIPercent(50, of: .screen(.width)), 5)
+        XCTAssertEqual(UIPercent(50, of: .screen(.width)) / UIPercent(25, of: .screen(.width)), 2)
+        XCTAssertEqual(10 * UIPercent(50, of: .screen(.width)), 5)
+        XCTAssertEqual(UIPercent(50, of: .screen(.width)).of(number: 10), 5)
+        XCTAssertTrue(UIPercent(50, of: .screen(.width)) >= 0.5)
+    }
+    
+    func testThatUIPercentCanBeResolvedWithinContainer() {
+        XCTAssertEqual(UIPercent(50, of: .container(.height)).resolve(within: CGSize(width: 100, height: 120)), 60)
+        XCTAssertEqual(UIPercent(50, of: .container(.width)).resolve(within: CGSize(width: 100, height: 120)), 50)
+        XCTAssertEqual(UIPercent(10, of: .container(.height)).resolve(within: CGSize(width: 100, height: 120)), 12)
+        XCTAssertEqual(UIPercent(10, of: .container(.width)).resolve(within: CGSize(width: 100, height: 120)), 10)
+    }
 
     static var allTests = [
         ("testThatAPercentCanBeCreated", testThatAPercentCanBeCreated),
         ("testThatArithmeticWorks", testThatArithmeticWorks),
         ("testThatAUIPercentCanBeCreated", testThatAUIPercentCanBeCreated),
+        ("testThatUIArithmeticWorks", testThatUIArithmeticWorks),
+        ("testThatUIPercentCanBeResolvedWithinContainer", testThatUIPercentCanBeResolvedWithinContainer),
     ]
 }
