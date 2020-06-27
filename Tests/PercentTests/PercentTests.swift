@@ -24,6 +24,12 @@ final class PercentTests: XCTestCase {
         XCTAssertEqual(10 * Percent(50), 5)
         XCTAssertEqual(Percent(50).of(number: 10), 5)
         XCTAssertTrue(Percent(50) >= 0.5)
+        XCTAssertEqual(Percent(20), Percent(20))
+        XCTAssertEqual(Percent(50, maximum: 20), Percent(20))
+        XCTAssertEqual(Percent(10, minimum: 20), Percent(20))
+        XCTAssertGreaterThanOrEqual(Percent(20), Percent(20))
+        XCTAssertGreaterThan(Percent(52), Percent(50))
+        XCTAssertLessThan(Percent(52), Percent(70))
     }
     
     func testThatAUIPercentCanBeCreated() {
