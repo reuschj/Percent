@@ -12,13 +12,13 @@ public protocol PercentProtocol: CustomStringConvertible, Hashable, Comparable {
     
     // Associated types ------------------------------------------------ /
     
-    associatedtype BaseType: FloatingPoint
+    associatedtype BaseType
     
     /// A type alias of the base type represented as an amount over 100.
-    associatedtype ExpressedAsPercent where ExpressedAsPercent == BaseType
+    associatedtype ExpressedAsPercent: PercentFloatingPoint where ExpressedAsPercent == BaseType
     
     /// A type alias of the base type represented as a decimal.
-    associatedtype ExpressedAsDecimal where ExpressedAsDecimal == BaseType
+    associatedtype ExpressedAsDecimal: DecimalFloatingPoint where ExpressedAsDecimal == BaseType
     
     // Properties ------------------------------------------------ /
     
@@ -48,10 +48,94 @@ public protocol PercentProtocol: CustomStringConvertible, Hashable, Comparable {
     
     func of(number: BaseType) -> BaseType
     func of(number: Int) -> BaseType
+    
+    // Static ------------------------------------------------ /
+    
+    static func getValueOfStringPercent(_ stringPercent: String) -> ExpressedAsPercent?
+    static func getDecimalOfStringPercent(_ stringPercent: String) -> ExpressedAsDecimal?
+    static func isStringPercent(_ string: String) -> Bool
+    
+    static func toStringPercent(_ percent: ExpressedAsPercent) -> String
+    static func toStringPercent(decimal: ExpressedAsDecimal) -> String
 }
 
 /// Default implementations
 extension PercentProtocol {
+    
+    // 🐣 Initializers ------------------------------------------------ /
+    
+    /**
+     Initialize with a decimal (represented as a decimal. For example, 1.0 = 100%, 0.5 = 50%, 0.01 = 1%, etc.)
+     - Parameter decimal: Percent represented as a decimal. For example, 1.0 = 100%, 0.5 = 50%, 0.01 = 1%, etc.
+     - Parameter minimum: The minimum allowed value (omit or pass `nil` for no minimum)
+     - Parameter maximum: The maximum allowed value (omit or pass `nil` for no maximum)
+     */
+    public init(
+        decimal: ExpressedAsDecimal,
+        minimum: ExpressedAsPercent? = nil,
+        maximum: ExpressedAsPercent? = nil
+    ) {
+        self.init(decimal.percent, minimum: minimum, maximum: maximum)
+    }
+    
+    /**
+     Initialize with a string percent (represented as a decimal. For example, 1.0 = 100%, 0.5 = 50%, 0.01 = 1%, etc.)
+     - Parameter string: A percent represented as a string (like "100%", "50%", or "25.2%")
+     - Parameter minimum: The minimum allowed value (omit or pass `nil` for no minimum)
+     - Parameter maximum: The maximum allowed value (omit or pass `nil` for no maximum)
+     */
+    public init?(
+        _ string: String,
+        minimum: ExpressedAsPercent? = nil,
+        maximum: ExpressedAsPercent? = nil
+    ) {
+        guard let value = Self.getValueOfStringPercent(string) else { return nil }
+        self.init(value, minimum: minimum, maximum: maximum)
+    }
+    
+    /**
+     Initialize with a fraction (pass the numerator and denominator)
+     - Parameter numerator: The numerator (top) of the fraction
+     - Parameter denominator: The denominator (bottom) of the fraction
+     - Parameter minimum: The minimum allowed value (omit or pass `nil` for no minimum)
+     - Parameter maximum: The maximum allowed value (omit or pass `nil` for no maximum)
+     */
+    public init(
+        _ numerator: BaseType,
+        over denominator: BaseType,
+        minimum: ExpressedAsPercent? = nil,
+        maximum: ExpressedAsPercent? = nil
+    ) {
+        self.init(decimal: (numerator / denominator), minimum: minimum, maximum: maximum)
+    }
+    
+    /**
+     Initialize with a fraction with 1 as the numerator (pass the denominator). For example, 1/4, or 1/2
+     - Parameter denominator: The denominator (bottom) of the fraction
+     - Parameter minimum: The minimum allowed value (omit or pass `nil` for no minimum)
+     - Parameter maximum: The maximum allowed value (omit or pass `nil` for no maximum)
+     */
+    public init(
+        oneOver denominator: BaseType,
+        minimum: ExpressedAsPercent? = nil,
+        maximum: ExpressedAsPercent? = nil
+    ) {
+        self.init(1, over: denominator, minimum: minimum, maximum: maximum)
+    }
+    
+    /**
+     Initialize with a fraction with 1 as the numerator (pass the denominator). For example, 1/4, or 1/2
+     - Parameter denominator: The denominator (bottom) of the fraction
+     - Parameter minimum: The minimum allowed value (omit or pass `nil` for no minimum)
+     - Parameter maximum: The maximum allowed value (omit or pass `nil` for no maximum)
+     */
+    public init(
+        oneOver denominator: Int,
+        minimum: ExpressedAsPercent? = nil,
+        maximum: ExpressedAsPercent? = nil
+    ) {
+        self.init(1, over: denominator, minimum: minimum, maximum: maximum)
+    }
     
     // 🛠 Methods ------------------------------------------------ /
     
@@ -67,9 +151,48 @@ extension PercentProtocol {
      */
     public func of(number: Int) -> BaseType { BaseType.init(number) * decimal }
     
+    /// String representation
+    public var description: String { Self.toStringPercent(percent) }
+    
     /// Hash function
     public func hash(into hasher: inout Hasher) {
         hasher.combine(percent)
+    }
+    
+    // Static ------------------------------------------------ /
+    
+    /**
+     Converts a sting percentage to percent decimal
+     - Parameter stringPercent: A percent represented as a string (like "100%", "50%", or "25.2%")
+     */
+    public static func getDecimalOfStringPercent(_ stringPercent: String) -> ExpressedAsDecimal? {
+        guard let value = Self.getValueOfStringPercent(stringPercent) else { return nil }
+        return value.decimal
+    }
+    
+    /**
+     Checks if a string can be converted to a percent
+     - Parameter string: A percent represented as a string (like "100%", "50%", or "25.2%")
+     */
+    public static func isStringPercent(_ string: String) -> Bool {
+        guard let _ = Self.getValueOfStringPercent(string) else { return false }
+        return true
+    }
+    
+    /**
+     Converts a percent value to string
+     - Parameter percent: Percent represented as an amount over 100. For example, 100.0 = 100%, 50.0 = 50%, 1 = 1%, etc.
+     */
+    public static func toStringPercent(_ percent: ExpressedAsPercent) -> String {
+        return "\(percent.removeTrailingZeros)%"
+    }
+    
+    /**
+     Converts a percent decimal to string
+     - Parameter decimal: Percent represented as a decimal. For example, 1.0 = 100%, 0.5 = 50%, 0.01 = 1%, etc.
+     */
+    public static func toStringPercent(decimal: ExpressedAsDecimal) -> String {
+        return "\(decimal.percent)%"
     }
 
     // 🍎==🍏❔ Equality ------------------------------------------------ /
