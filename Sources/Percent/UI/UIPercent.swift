@@ -30,10 +30,20 @@ public struct UIPercent: PercentProtocol {
     }
     
     /// The minimum percentage that can be stored (Optional)
-    public var minimum: PercentCGFloat? = nil
+    public var minimum: PercentCGFloat? = nil {
+        didSet {
+            let previousBase = base
+            base = limit(previousBase, minimum: minimum, maximum: maximum)
+        }
+    }
     
     /// The maximum percentage that can be stored (Optional)
-    public var maximum: PercentCGFloat? = nil
+    public var maximum: PercentCGFloat? = nil {
+        didSet {
+            let previousBase = base
+            base = limit(previousBase, minimum: minimum, maximum: maximum)
+        }
+    }
     
     /// Selects the container to scale to
     var container: ScaleContainer = .screen(.width)

@@ -206,6 +206,19 @@ extension PercentProtocol {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.percent == rhs.percent
     }
+
+    // Comparison to decimal ------------------------------------------------ /
+
+    /**
+     Compares to a decimal.
+     This can't be checked with the `==` operator since that would imply them to be the same value and the same type.
+     This method 
+     - Parameter decimal: Another decimal to compare to
+     - Returns: If comparison was successful
+     */
+    public func isEquivalentTo(decimal: ExpressedAsDecimal) -> Bool {
+        self.percent == decimal.percent
+    }
     
     // 🍎<🍏❔ Comparison ------------------------------------------------ /
 

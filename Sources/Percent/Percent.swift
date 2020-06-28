@@ -30,10 +30,20 @@ public struct Percent: PercentProtocol {
     }
     
     /// The minimum percentage that can be stored (Optional)
-    public var minimum: PercentDouble? = nil
+    public var minimum: PercentDouble? = nil {
+        didSet {
+            let previousBase = base
+            base = limit(previousBase, minimum: minimum, maximum: maximum)
+        }
+    }
     
     /// The maximum percentage that can be stored (Optional)
-    public var maximum: PercentDouble? = nil
+    public var maximum: PercentDouble? = nil {
+        didSet {
+            let previousBase = base
+            base = limit(previousBase, minimum: minimum, maximum: maximum)
+        }
+    }
     
     // 🐣 Initializers ------------------------------------------------ /
     
