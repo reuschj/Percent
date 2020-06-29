@@ -103,3 +103,50 @@ This is because they effectively have the same value, but aren't the same type. 
 ```swift
 print(percent01.isEquivalentTo(decimal: 0.5)) // true
 ```
+
+## Percent arithmetic
+
+A `Percent` can be combined with another `Percent`.
+
+```swift
+print(Percent(50) + Percent(5)) // 55%
+print(Percent(50) - Percent(5)) // 45%
+print(Percent(50) * Percent(50)) // 25%
+print(Percent(50) / Percent(25)) // 2
+```
+
+A `Percent` can also be combined with a `Double`.
+
+```swift
+print(10 + Percent(50)) // 15 <-- 10 + (10 * 0.5)
+print(10 - Percent(50)) // 5 <-- 10 - (10 * 0.5)
+print(10 * Percent(50)) // 5 <-- 10 * 0.5
+print(10 / Percent(50)) // 20 <-- 10 / 0.5
+print(Percent(25) * 2) // 50%
+print(Percent(50) / 2) // 25%
+```
+
+# UIPercent
+
+For use in UI, use a `UIPercent`. It works like a `Percent`, with a few extras for UI.  `Percent` and `UIPercent` both implement the `PercentProtocol` protocol, so have many of the same capabilities. However, where `Percent` is based on the `Double` type and good for general arithmetic, `UIPercent` is based on `CGFloat`, so is better aligned to dealing with UI measurements.
+
+Also, `UIPercent` adds in the ability to set a scaling container of type `ScaleContainer`. `ScaleContainer` is an enum specifying a container that the percent intends to scale to. For example:
+
+```swift
+GeometryReader { geometry in
+    let width = UIPercent(25, of: .screen(.width))
+    let height = UIPercent(50, of: .screen(.height))
+    let screenSize: CGSize = geometry.size
+    let resolvedWidth = width.resolve(within: screenSize)
+    let resolvedHeight = height.resolve(within: screenSize)
+}
+```
+The `ScaleContainer` enum has two cases, `.screen` and `.container`. `.screen` communicates that you are intending to scale to the full screen and `.container` communicates that you intend to scale to some other container within the UI. Either way, you must specify the dimension of this container to scale to. `ScaleContainer.Dimension` is an enum with cases `.height`, `.width`, `.radius`, `.diameter` and `.other` (anything not covered by the other cases).
+
+If you scale to `.container`, you can also pass a string description. For example:
+
+```swift
+let handLength = UIPercent(90, of: .container(.radius, "clock"))
+```
+
+You can use the `resolve(within: CGFloat, limitedTo: ClosedRange<CGFloat>?)`, `resolve(within: CGSize, limitedTo: ClosedRange<CGFloat>?)`  or `resolve(within: GeometryProxy, limitedTo: ClosedRange<CGFloat>?)`  method of `UIPercent` to get the fixed value within the specified container. The second parameter is optional if you want to constrain that resolved value to an allowable range.
