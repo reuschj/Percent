@@ -21,6 +21,7 @@ extension UIPercent {
      */
     @available(iOS 13.0, *)
     @available(OSX 10.15, *)
+    @available(watchOS 6.0, *)
     public func resolve(within geometry: GeometryProxy, limitedTo range: ClosedRange<CGFloat>? = nil) -> CGFloat {
         resolve(within: geometry.size, limitedTo: range)
     }
